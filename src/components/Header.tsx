@@ -1,13 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import NotificationButton from './NotificationButton'
 import MessageButton from './MessageButton'
-import UserButton from './UserButton'
+// import UserButton from './UserButton'
 
 const Header: React.FC = () => {
   const [user, setUser] = useState<any>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  // Kiểm tra trạng thái đăng nhập khi component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    const userData = localStorage.getItem('user')
+
+    if (token && userData) {
+      setIsLoggedIn(true)
+      setUser(JSON.parse(userData))
+    }
+  }, [])
 
   // Mutation để gửi token Google lên backend
   const loginMutation = useMutation({
@@ -20,6 +32,7 @@ const Header: React.FC = () => {
     onSuccess: (data) => {
       console.log('Login success:', data)
       setUser(data.user)
+      setIsLoggedIn(true)
       localStorage.setItem('token', data.accessToken)
       localStorage.setItem('user', JSON.stringify(data.user))
     },
@@ -30,8 +43,6 @@ const Header: React.FC = () => {
   })
 
   const onSuccess = (credentialResponse: any) => {
-    // console.log('Google login success:', credentialResponse);
-
     if (credentialResponse.credential) {
       // Gửi token Google lên backend
       loginMutation.mutate(credentialResponse.credential)
@@ -44,7 +55,9 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {
     setUser(null)
+    setIsLoggedIn(false)
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
     console.log('Logged out')
   }
 
@@ -53,45 +66,23 @@ const Header: React.FC = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-semibold">Quản lý</h1>
         <div className="flex items-center space-x-4">
-          {/* Các nút thông báo, tin nhắn, bạn bè */}
-          <NotificationButton />
-          {/* Sử dụng với dữ liệu mặc định
-          <NotificationButton />
-
-          Hoặc truyền dữ liệu từ props
-          <NotificationButton 
-            initialUnreadCount={5}
-            notifications={yourTaskNotificationsArray}
-          /> */}
-
-          {/* --- */}
-          <MessageButton />
-          {/* Sử dụng với dữ liệu mặc định
-          <MessageButton />
-
-          Hoặc truyền dữ liệu từ props
-          <MessageButton 
-            initialUnreadCount={5}
-            messages={yourMessagesArray}
-          /> */}
-
-          {/* --- */}
-          <UserButton />
-          {/* Sử dụng với dữ liệu mặc định
-          <UserButton />
-
-          Hoặc truyền dữ liệu từ props
-          <UserButton 
-            friendRequests={yourFriendRequestsArray}
-            friends={yourFriendsArray}
-          /> */}
+          {/* Chỉ hiển thị các nút thông báo, tin nhắn khi đã đăng nhập */}
+          {isLoggedIn && (
+            <>
+              <NotificationButton />
+              <MessageButton />
+            </>
+          )}
 
           {/* Phần đăng nhập */}
-          {user ? (
+          {isLoggedIn ? (
             <div className="flex items-center space-x-2">
-              <img src={user.image} alt="User avatar" className="w-8 h-8 rounded-full" />
-              <span className="text-sm">{user.username}</span>
-              <button onClick={handleLogout} className="bg-blue-500 text-white px-3 py-1 rounded text-sm">
+              <img src={user?.image || '/default-avatar.png'} alt="User avatar" className="w-8 h-8 rounded-full" />
+              <span className="text-sm">{user?.username || 'User'}</span>
+              <button
+                onClick={handleLogout}
+                className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
+              >
                 Đăng xuất
               </button>
             </div>
@@ -100,24 +91,21 @@ const Header: React.FC = () => {
               {loginMutation.isPending ? (
                 <div className="text-sm">Đang đăng nhập...</div>
               ) : (
-                <GoogleLogin onSuccess={onSuccess} onError={onError} theme="filled_blue" text="signin" />
+                <GoogleLogin
+                  onSuccess={onSuccess}
+                  onError={onError}
+                  theme="filled_blue"
+                  text="signin"
+                />
               )}
 
-              {loginMutation.isError && <div className="text-red-500 text-sm mt-1">Lỗi đăng nhập</div>}
+              {loginMutation.isError && (
+                <div className="text-red-500 text-sm mt-1">Lỗi đăng nhập</div>
+              )}
             </div>
           )}
         </div>
       </div>
-
-      {/* Debug info - chỉ hiển thị trong development */}
-      {/* {process.env.NODE_ENV === 'development' && (
-        <div className="mt-2 p-2 bg-gray-100 text-xs">
-          <strong>Debug Info:</strong><br />
-          User: {user ? JSON.stringify(user) : 'Chưa đăng nhập'}<br />
-          Mutation Status: {loginMutation.status}<br />
-          Error: {loginMutation.error ? loginMutation.error.message : 'None'}
-        </div>
-      )} */}
     </header>
   )
 }
