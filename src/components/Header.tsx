@@ -1,25 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import NotificationButton from './NotificationButton'
 import MessageButton from './MessageButton'
-// import UserButton from './UserButton'
+import { useAuth } from '../contexts/AuthContext'
 
 const Header: React.FC = () => {
-  const [user, setUser] = useState<any>(null)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-  // Kiểm tra trạng thái đăng nhập khi component mount
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    const userData = localStorage.getItem('user')
-
-    if (token && userData) {
-      setIsLoggedIn(true)
-      setUser(JSON.parse(userData))
-    }
-  }, [])
+  const { isLoggedIn, user, login, logout } = useAuth()
 
   // Mutation để gửi token Google lên backend
   const loginMutation = useMutation({
@@ -31,10 +19,7 @@ const Header: React.FC = () => {
     },
     onSuccess: (data) => {
       console.log('Login success:', data)
-      setUser(data.user)
-      setIsLoggedIn(true)
-      localStorage.setItem('token', data.accessToken)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      login(data.accessToken, data.user)
     },
     onError: (error: any) => {
       console.error('Login error:', error)
@@ -54,10 +39,7 @@ const Header: React.FC = () => {
   }
 
   const handleLogout = () => {
-    setUser(null)
-    setIsLoggedIn(false)
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    logout()
     console.log('Logged out')
   }
 
