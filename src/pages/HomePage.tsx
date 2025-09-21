@@ -1,11 +1,11 @@
 import React from 'react'
-import FolderList from '../components/FolderList'
+import ProjectList from '../components/ProjectList'
 
 const HomePage: React.FC = () => {
   return (
     <div className="flex bg-gray-50">
       <div className="w-full">
-        <FolderList />
+        <ProjectList />
       </div>
     </div>
   )

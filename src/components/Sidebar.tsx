@@ -23,7 +23,7 @@ const sidebarItems = [
     to: '/'
   },
   {
-    label: 'Drive của tôi',
+    label: 'Dự án của tôi',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +40,7 @@ const sidebarItems = [
         />
       </svg>
     ),
-    to: '/drive'
+    to: '/my-project'
   },
   {
     label: 'Được chia sẻ với tôi',
@@ -60,7 +60,7 @@ const sidebarItems = [
         />
       </svg>
     ),
-    to: '/shared'
+    to: '/my-shared'
   },
   {
     label: 'Có gắn dấu sao',
@@ -80,7 +80,7 @@ const sidebarItems = [
         />
       </svg>
     ),
-    to: '/starred'
+    to: '/my-favorite'
   },
   {
     label: 'Thùng rác',
@@ -109,10 +109,6 @@ const Sidebar: React.FC = () => {
 
   return (
     <aside className="bg-gray-50 p-4 rounded-xl w-2 sm:w-64 flex flex-col gap-2 shadow">
-      <button className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow mb-4 cursor-pointer font-medium hover:bg-gray-100 transition">
-        <span className="text-xl">＋</span>
-        <span className="hidden sm:inline">Thêm mới</span>
-      </button>
       <nav className="flex flex-col gap-1">
         {sidebarItems.map((item) => (
           <Link

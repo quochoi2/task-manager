@@ -4,7 +4,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import App from './App.tsx'
-import './apis/config';
+import './apis/config.js';
 import './index.css'
 
 const queryClient = new QueryClient()
